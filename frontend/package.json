@@ -4,8 +4,8 @@
   "main": "next.config.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export",
-    "start": "next start"
+    "build": "next build",
+    "export": "next build && next export"
   },
   "keywords": [],
   "author": "",
