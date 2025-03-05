@@ -17,8 +17,8 @@ export default function NFTMinting() {
     useEffect(() => {
         async function loadContract() {
             if (window.ethereum) {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const signer = provider.getSigner();
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                const signer = await provider.getSigner();
                 const contractInstance = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
                 setContract(contractInstance);
             }
@@ -28,9 +28,9 @@ export default function NFTMinting() {
 
     async function connectWallet() {
         if (!window.ethereum) return alert("Please install MetaMask!");
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new ethers.BrowserProvider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
         const userAccount = await signer.getAddress();
         setAccount(userAccount);
 
