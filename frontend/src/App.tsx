@@ -14,17 +14,23 @@ export default function NFTMinting() {
     const [description, setDescription] = useState("");
     const [contract, setContract] = useState(null);
 
-    useEffect(() => {
-        async function loadContract() {
-            if (window.ethereum) {
+useEffect(() => {
+    async function loadContract() {
+        if (typeof window !== "undefined" && window.ethereum) {  // 确保 window.ethereum 存在
+            try {
                 const provider = new ethers.BrowserProvider(window.ethereum);
                 const signer = await provider.getSigner();
                 const contractInstance = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
                 setContract(contractInstance);
+            } catch (error) {
+                console.error("Error loading contract:", error);
             }
+        } else {
+            console.warn("MetaMask not detected!");
         }
-        loadContract();
-    }, []);
+    }
+    loadContract();
+}, []);
 
     async function connectWallet() {
         if (!window.ethereum) return alert("Please install MetaMask!");
