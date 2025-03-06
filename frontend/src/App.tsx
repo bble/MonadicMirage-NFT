@@ -32,8 +32,6 @@ useEffect(() => {
     loadContract();
 }, []);
 
-import { ethers } from "ethers";
-
 async function connectWallet() {
     if (typeof window !== "undefined" && window.ethereum) {
         try {
