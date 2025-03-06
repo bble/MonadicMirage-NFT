@@ -32,18 +32,25 @@ useEffect(() => {
     loadContract();
 }, []);
 
-    async function connectWallet() {
-        if (!window.ethereum) return alert("Please install MetaMask!");
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = await provider.getSigner();
-        const userAccount = await signer.getAddress();
-        setAccount(userAccount);
+import { ethers } from "ethers";
 
-        // 连接合约
-        const contractInstance = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
-        setContract(contractInstance);
+async function connectWallet() {
+    if (typeof window !== "undefined" && window.ethereum) {
+        try {
+            const provider = new ethers.BrowserProvider(window.ethereum); // v6 语法
+            const signer = await provider.getSigner();
+            setAccount(await signer.getAddress());
+        } catch (error) {
+            if (error.code === "ACTION_REJECTED") {
+                alert("用户拒绝了连接钱包请求，请重新尝试！");
+            } else {
+                console.error("连接钱包时发生错误:", error);
+            }
+        }
+    } else {
+        alert("请安装 MetaMask 扩展！");
     }
+}
 
     async function mintNFT() {
         if (!contract || !file) return alert("Please upload an image and connect wallet!");
