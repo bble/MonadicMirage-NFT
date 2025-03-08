@@ -4,7 +4,7 @@ import contractData from "@/contracts/NFTContract.json";
 import { uploadFileToIPFS, uploadMetadataToIPFS } from "@/utils/ipfs";
 import { Button } from "@/components/ui/button";
 
-const CONTRACT_ADDRESS = "0xYourSmartContractAddress";
+const CONTRACT_ADDRESS = "0xCffA7CC35c7E5a01Fca5659D275d18214F638fab";
 const contractABI = contractData.abi;  
 
 export default function NFTMinting() {
