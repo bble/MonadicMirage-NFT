@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import contractData from "@/contracts/NFTContract.json";  // ✅ 确保正确导入
+import contractData from "@/contracts/NFTContract.json";  
 import { uploadFileToIPFS, uploadMetadataToIPFS } from "@/utils/ipfs";
 import { Button } from "@/components/ui/button";
 
 const CONTRACT_ADDRESS = "0xYourSmartContractAddress";
-const contractABI = contractData.abi;  // ✅ 确保正确获取 ABI
+const contractABI = contractData.abi;  
 
 export default function NFTMinting() {
     const [account, setAccount] = useState(null);
@@ -16,7 +16,7 @@ export default function NFTMinting() {
 
 useEffect(() => {
     async function loadContract() {
-        if (typeof window !== "undefined" && window.ethereum) {  // 确保 window.ethereum 存在
+        if (typeof window !== "undefined" && window.ethereum) {  
             try {
                 const provider = new ethers.BrowserProvider(window.ethereum);
                 const signer = await provider.getSigner();
@@ -35,33 +35,33 @@ useEffect(() => {
 async function connectWallet() {
     if (typeof window !== "undefined" && window.ethereum) {
         try {
-            const provider = new ethers.BrowserProvider(window.ethereum); // v6 语法
+            const provider = new ethers.BrowserProvider(window.ethereum); 
             const signer = await provider.getSigner();
             setAccount(await signer.getAddress());
         } catch (error) {
             if (error.code === "ACTION_REJECTED") {
-                alert("用户拒绝了连接钱包请求，请重新尝试！");
+                alert("The user rejected the wallet connection request. Please try again!");
             } else {
-                console.error("连接钱包时发生错误:", error);
+                console.error("Wallet connection error.:", error);
             }
         }
     } else {
-        alert("请安装 MetaMask 扩展！");
+        alert("Please install the wallet !");
     }
 }
 
     async function mintNFT() {
         if (!contract || !file) return alert("Please upload an image and connect wallet!");
 
-        // 1️⃣ 上传图片到 IPFS
+        // 1️传图片到 IPFS
         const imageUrl = await uploadFileToIPFS(file);
         if (!imageUrl) return alert("Image upload failed!");
 
-        // 2️⃣ 上传 NFT 元数据到 IPFS
+        //2️上传 NFT 元数据到 IPFS
         const metadataUrl = await uploadMetadataToIPFS(name, description, imageUrl);
         if (!metadataUrl) return alert("Metadata upload failed!");
 
-        // 3️⃣ 调用智能合约铸造 NFT
+        // 3️调用智能合约铸造 NFT
         const tx = await contract.mintNFT(metadataUrl);
         await tx.wait();
         alert("NFT Minted Successfully!");
