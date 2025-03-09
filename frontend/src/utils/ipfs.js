@@ -29,13 +29,13 @@ export async function uploadFileToIPFS(file) {
       },
     });
 
-    return `ipfs://${response.data.IpfsHash}`;
+    const ipfsHash = response.data.IpfsHash;
+    return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
   } catch (error) {
     console.error("IPFS Upload Error:", error);
     return null;
   }
 }
-
 
 export async function uploadMetadataToIPFS(name, description, imageUrl) {
   const url = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
@@ -55,7 +55,8 @@ export async function uploadMetadataToIPFS(name, description, imageUrl) {
       },
     });
 
-    return `ipfs://${response.data.IpfsHash}`;
+    const ipfsHash = response.data.IpfsHash;
+    return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
   } catch (error) {
     console.error("IPFS Metadata Upload Error:", error);
     return null;
