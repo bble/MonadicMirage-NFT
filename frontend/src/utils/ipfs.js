@@ -8,29 +8,14 @@ if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
 }
 
 export async function uploadFileToIPFS(file) {
-  const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const options = JSON.stringify({
-    cidVersion: 1,
-  });
-
-  formData.append("pinataOptions", options);
-
   try {
-    const response = await axios.post(url, formData, {
-      maxContentLength: "Infinity",
-      headers: {
-        "Content-Type": `multipart/form-data`,
-        pinata_api_key: PINATA_API_KEY,
-        pinata_secret_api_key: PINATA_SECRET_API_KEY,
-      },
-    });
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const ipfsHash = response.data.IpfsHash;
-    return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+    // **请求 Next.js API 代理，而不是直接请求 Pinata**
+    const response = await axios.post("/api/uploadFile", formData);
+
+    return response.data.ipfsUrl; // 返回安全的 IPFS 地址
   } catch (error) {
     console.error("IPFS Upload Error:", error);
     return null;
@@ -38,23 +23,16 @@ export async function uploadFileToIPFS(file) {
 }
 
 export async function uploadMetadataToIPFS(name, description, imageUrl) {
-  const url = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
-  const metadata = {
-    name,
-    description,
-    image: imageUrl.replace("https://gateway.pinata.cloud/ipfs/", "ipfs://"),
-  };
-
   try {
-    const response = await axios.post(url, metadata, {
-      headers: {
-        "Content-Type": "application/json",
-        pinata_api_key: PINATA_API_KEY,
-        pinata_secret_api_key: PINATA_SECRET_API_KEY,
-      },
-    });
+    const metadata = {
+      name,
+      description,
+      image: imageUrl.replace("https://gateway.pinata.cloud/ipfs/", "ipfs://"),
+    };
 
-    return `ipfs://${response.data.IpfsHash}`;
+    const response = await axios.post("/api/uploadMetadata", metadata);
+
+    return response.data.ipfsUrl; 
   } catch (error) {
     console.error("IPFS Metadata Upload Error:", error);
     return null;
