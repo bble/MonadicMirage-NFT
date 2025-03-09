@@ -1,6 +1,12 @@
 import { create } from "ipfs-http-client";
 
-const client = create("https://ipfs.infura.io:5001/api/v0");
+
+const client = create({
+  url: "https://ipfs.infura.io:5001/api/v0",
+  headers: {
+    authorization: "5a9ebf3fdfe04611b50e9fd157be0a00" 
+  }
+});
 
 export async function uploadFileToIPFS(file) {
     try {
