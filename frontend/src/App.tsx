@@ -69,23 +69,40 @@ async function connectWallet() {
     }
 }
 
-    async function mintNFT() {
-        if (!contract || !file) return alert("Please upload an image and connect wallet!");
+async function mintNFT() {
+    if (!contract || !file) return alert("Please upload an file and connect wallet!");
 
-        // 1️传图片到 IPFS
+    try {
+        await window.ethereum.enable(); 
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contractWithSigner = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+
+        // 1️⃣ 上传图片到 IPFS
         const imageUrl = await uploadFileToIPFS(file);
         if (!imageUrl) return alert("File upload failed!");
 
-        //2️上传 NFT 元数据到 IPFS
+        // 2️⃣ 上传 NFT 元数据到 IPFS
         const metadataUrl = await uploadMetadataToIPFS(name, description, imageUrl);
-        console.log("Metadata URI to be minted:", metadataUrl); 
+        console.log("Metadata URI to be minted:", metadataUrl);
         if (!metadataUrl) return alert("Metadata upload failed!");
 
-        // 3️调用智能合约铸造 NFT
-        const tx = await contract.mintNFT(metadataUrl);
+        // 3️⃣ **确保用户已连接账户**
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+
+        // 4️⃣ **触发交易**
+        console.log("Minting NFT with metadata:", metadataUrl);
+        const tx = await contractWithSigner.mintNFT(metadataUrl);
+        
+        console.log("Transaction sent:", tx.hash);
+
         await tx.wait();
         alert("NFT Minted Successfully!");
+    } catch (error) {
+        console.error("Transaction failed:", error);
+        alert("Transaction failed! See console for details.");
     }
+}
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
