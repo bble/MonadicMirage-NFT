@@ -59,6 +59,7 @@ async function connectWallet() {
 
         //2️上传 NFT 元数据到 IPFS
         const metadataUrl = await uploadMetadataToIPFS(name, description, imageUrl);
+        console.log("Metadata URI to be minted:", metadataUrl); 
         if (!metadataUrl) return alert("Metadata upload failed!");
 
         // 3️调用智能合约铸造 NFT
