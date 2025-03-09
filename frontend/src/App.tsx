@@ -70,10 +70,11 @@ async function connectWallet() {
 }
 
 async function mintNFT() {
-    if (!contract || !file) return alert("Please upload an file and connect wallet!");
+    if (!contract || !file) return alert("Please upload an image and connect wallet!");
 
     try {
-        await window.ethereum.enable(); 
+        await window.ethereum.enable(); // 确保 Phantom 触发 UI
+
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const contractWithSigner = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
@@ -87,20 +88,27 @@ async function mintNFT() {
         console.log("Metadata URI to be minted:", metadataUrl);
         if (!metadataUrl) return alert("Metadata upload failed!");
 
-        // 3️⃣ **确保用户已连接账户**
-        await window.ethereum.request({ method: "eth_requestAccounts" });
+        // 3️⃣ **进行 gas 估算**
+        let gasEstimate;
+        try {
+            gasEstimate = await contractWithSigner.mintNFT.estimateGas(metadataUrl);
+            console.log("Estimated gas:", gasEstimate.toString());
+        } catch (error) {
+            console.error("Gas estimation failed:", error);
+            alert("Gas estimation failed. Trying to send transaction anyway...");
+            gasEstimate = ethers.parseUnits("500000", "wei"); // **手动设置 gas**
+        }
 
-        // 4️⃣ **触发交易**
-        console.log("Minting NFT with metadata:", metadataUrl);
-        const tx = await contractWithSigner.mintNFT(metadataUrl);
-        
+        // 4️⃣ 触发交易
+        console.log("Sending transaction...");
+        const tx = await contractWithSigner.mintNFT(metadataUrl, { gasLimit: gasEstimate });
+
         console.log("Transaction sent:", tx.hash);
-
         await tx.wait();
         alert("NFT Minted Successfully!");
     } catch (error) {
         console.error("Transaction failed:", error);
-        alert("Transaction failed! See console for details.");
+        alert(`Transaction failed! Error: ${error.message}`);
     }
 }
 
