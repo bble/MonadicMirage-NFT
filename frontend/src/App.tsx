@@ -31,10 +31,20 @@ useEffect(() => {
     }
     loadContract();
 }, []);
-
+async function switchToMonadNetwork() {
+    try {
+        await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "10143" }] // Monad 的 Chain ID
+        });
+    } catch (error) {
+        console.error("Network switch failed:", error);
+    }
+}
 async function connectWallet() {
     if (typeof window !== "undefined" && window.ethereum) {
         try {
+            await switchToMonadNetwork(); // 先切换到 Monad Testnet
             const provider = new ethers.BrowserProvider(window.ethereum); 
             const signer = await provider.getSigner();
             setAccount(await signer.getAddress());
@@ -55,7 +65,7 @@ async function connectWallet() {
 
         // 1️传图片到 IPFS
         const imageUrl = await uploadFileToIPFS(file);
-        if (!imageUrl) return alert("Image upload failed!");
+        if (!imageUrl) return alert("File upload failed!");
 
         //2️上传 NFT 元数据到 IPFS
         const metadataUrl = await uploadMetadataToIPFS(name, description, imageUrl);
