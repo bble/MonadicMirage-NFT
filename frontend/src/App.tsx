@@ -32,13 +32,22 @@ useEffect(() => {
     loadContract();
 }, []);
 async function switchToMonadNetwork() {
+    const EXPECTED_CHAIN_ID = "0x27A7"; // 10143 转换为 0x27A7
     try {
-        await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: "10143" }] // Monad 的 Chain ID
-        });
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const network = await provider.getNetwork();
+        if (network.chainId !== parseInt(EXPECTED_CHAIN_ID, 16)) { 
+            await window.ethereum.request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: EXPECTED_CHAIN_ID }]
+            });
+            return true;
+        }
+        return true; 
     } catch (error) {
         console.error("Network switch failed:", error);
+        alert("Please manually switch to Monad Testnet in MetaMask.");
+        return false;
     }
 }
 async function connectWallet() {
