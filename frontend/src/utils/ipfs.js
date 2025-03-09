@@ -39,11 +39,10 @@ export async function uploadFileToIPFS(file) {
 
 export async function uploadMetadataToIPFS(name, description, imageUrl) {
   const url = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
-
   const metadata = {
     name,
     description,
-    image: imageUrl,
+    image: imageUrl.replace("https://gateway.pinata.cloud/ipfs/", "ipfs://"),
   };
 
   try {
@@ -55,8 +54,7 @@ export async function uploadMetadataToIPFS(name, description, imageUrl) {
       },
     });
 
-    const ipfsHash = response.data.IpfsHash;
-    return `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
+    return `ipfs://${response.data.IpfsHash}`;
   } catch (error) {
     console.error("IPFS Metadata Upload Error:", error);
     return null;
