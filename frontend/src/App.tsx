@@ -54,18 +54,22 @@ async function connectWallet() {
     if (typeof window !== "undefined" && window.ethereum) {
         try {
             await switchToMonadNetwork(); // 先切换到 Monad Testnet
-            const provider = new ethers.BrowserProvider(window.ethereum); 
+            const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
-            setAccount(await signer.getAddress());
+            
+            // **确保请求连接账户**
+            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+            setAccount(accounts[0]); 
+
         } catch (error) {
             if (error.code === "ACTION_REJECTED") {
-                alert("The user rejected the wallet connection request. Please try again!");
+                alert("User rejected wallet connection request!");
             } else {
-                console.error("Wallet connection error.:", error);
+                console.error("Wallet connection error:", error);
             }
         }
     } else {
-        alert("Please install the wallet !");
+        alert("Please install MetaMask!");
     }
 }
 
@@ -73,8 +77,7 @@ async function mintNFT() {
     if (!contract || !file) return alert("Please upload an image and connect wallet!");
 
     try {
-        await window.ethereum.enable(); // 确保 Phantom 触发 UI
-
+        await window.ethereum.enable(); // 强制触发 MetaMask UI
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         const contractWithSigner = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
@@ -88,27 +91,20 @@ async function mintNFT() {
         console.log("Metadata URI to be minted:", metadataUrl);
         if (!metadataUrl) return alert("Metadata upload failed!");
 
-        // 3️⃣ **进行 gas 估算**
-        let gasEstimate;
-        try {
-            gasEstimate = await contractWithSigner.mintNFT.estimateGas(metadataUrl);
-            console.log("Estimated gas:", gasEstimate.toString());
-        } catch (error) {
-            console.error("Gas estimation failed:", error);
-            alert("Gas estimation failed. Trying to send transaction anyway...");
-            gasEstimate = ethers.parseUnits("500000", "wei"); // **手动设置 gas**
-        }
+        // 3️⃣ **确保用户已连接账户**
+        await window.ethereum.request({ method: "eth_requestAccounts" });
 
-        // 4️⃣ 触发交易
-        console.log("Sending transaction...");
-        const tx = await contractWithSigner.mintNFT(metadataUrl, { gasLimit: gasEstimate });
-
+        // 4️⃣ **触发交易**
+        console.log("Minting NFT with metadata:", metadataUrl);
+        const tx = await contractWithSigner.mintNFT(metadataUrl);
+        
         console.log("Transaction sent:", tx.hash);
+
         await tx.wait();
         alert("NFT Minted Successfully!");
     } catch (error) {
         console.error("Transaction failed:", error);
-        alert(`Transaction failed! Error: ${error.message}`);
+        alert("Transaction failed! See console for details.");
     }
 }
 
