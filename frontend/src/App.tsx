@@ -32,7 +32,7 @@ useEffect(() => {
     loadContract();
 }, []);
 async function switchToMonadNetwork() {
-    const EXPECTED_CHAIN_ID = "0x27A7"; // 10143 转换为 0x27A7
+    const EXPECTED_CHAIN_ID = "0x279f"; // 10143 转换为 0x27A7
     try {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const network = await provider.getNetwork();
