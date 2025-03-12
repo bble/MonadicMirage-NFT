@@ -9,9 +9,8 @@ export async function handler(event) {
     }
 
     try {
-        // 构造 formData
-        const formData = new FormData();
-        formData.append("file", event.body.file);
+        // 读取文件内容，假设文件已作为二进制上传（base64 或文件本身）
+        const fileBuffer = Buffer.from(event.body.file, 'base64');
 
         // 使用 node-fetch 进行 POST 请求
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
@@ -21,7 +20,7 @@ export async function handler(event) {
                 "pinata_api_key": process.env.PINATA_API_KEY,
                 "pinata_secret_api_key": process.env.PINATA_SECRET_API_KEY,
             },
-            body: formData,
+            body: fileBuffer,  // 直接发送 Buffer 文件
         });
 
         // 解析响应并返回
