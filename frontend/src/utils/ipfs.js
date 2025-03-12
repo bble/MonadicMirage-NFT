@@ -10,8 +10,11 @@ if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
 export async function uploadFileToIPFS(file) {
     const formData = new FormData();
     formData.append("file", file);
-
-    const response = await axios.post("/.netlify/functions/uploadFile", formData);
+     const response = await axios.post("/.netlify/functions/uploadFile", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
     return response.data.ipfsUrl;
 }
 
