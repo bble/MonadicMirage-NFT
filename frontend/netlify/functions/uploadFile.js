@@ -28,7 +28,7 @@ export async function handler(event) {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ ipfsUrl: `ipfs://${data.IpfsHash}` }),
+            body: JSON.stringify({ ipfsUrl: `ipfs://${response.data.IpfsHash}` }),
         };
     } catch (error) {
         console.error("IPFS Upload Error:", error);
