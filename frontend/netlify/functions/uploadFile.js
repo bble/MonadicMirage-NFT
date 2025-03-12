@@ -1,7 +1,7 @@
-import fetch from 'node-fetch'; // 使用 node-fetch
+import fetch from 'node-fetch'; 
 
 export async function handler(event) {
-    // 确保是 POST 请求
+
     if (event.httpMethod !== "POST") {
         return {
             statusCode: 405,
@@ -10,25 +10,20 @@ export async function handler(event) {
     }
 
     try {
-        // 确保收到的文件是二进制数据
-        const fileBuffer = Buffer.from(event.body.file, 'binary'); // 读取二进制数据
-
-        // 创建 FormData 来发送
         const formData = new FormData();
-        formData.append('file', fileBuffer, 'file');
+        formData.append("file", event.body.file);
 
-        // 调用 Pinata API 上传文件
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
             method: 'POST',
             headers: {
-                "pinata_api_key": process.env.PINATA_API_KEY,
-                "pinata_secret_api_key": process.env.PINATA_SECRET_API_KEY,
-                ...formData.getHeaders(), // 自动处理头部
+                "Content-Type": "multipart/form-data",
+                pinata_api_key: process.env.PINATA_API_KEY,
+                pinata_secret_api_key: process.env.PINATA_SECRET_API_KEY,
             },
             body: formData,
         });
 
-        const data = await response.json(); // 获取 Pinata 的响应
+        const data = await response.json();
 
         if (!response.ok) {
             throw new Error(`Failed to upload: ${data.error}`);
