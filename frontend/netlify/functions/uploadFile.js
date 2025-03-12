@@ -17,6 +17,7 @@ export async function handler(event) {
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
             method: 'POST',
             headers: {
+                "Content-Type": "multipart/form-data",
                 "pinata_api_key": process.env.PINATA_API_KEY,
                 "pinata_secret_api_key": process.env.PINATA_SECRET_API_KEY,
             },
@@ -28,7 +29,7 @@ export async function handler(event) {
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ ipfsUrl: `ipfs://${response.data.IpfsHash}` }),
+            body: JSON.stringify({ ipfsUrl: `ipfs://${data.IpfsHash}` }),
         };
     } catch (error) {
         console.error("IPFS Upload Error:", error);
