@@ -1,5 +1,4 @@
-const fetch = require('node-fetch');
-console.log(fetch);  // 测试是否成功导入
+import fetch from 'node-fetch';  // 使用 ES6 模块导入方式
 export async function handler(event) {
   const formData = new FormData();
   formData.append("file", event.body.file);
