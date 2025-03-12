@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-
+console.log(fetch);  // 测试是否成功导入
 export async function handler(event) {
   const formData = new FormData();
   formData.append("file", event.body.file);
