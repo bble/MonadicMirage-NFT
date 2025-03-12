@@ -10,7 +10,7 @@ const contractABI = contractData.abi;
 export default function NFTMinting() {
     const [account, setAccount] = useState(null);
     const [file, setFile] = useState(null);
-    const [fileName, setFileName] = useState("请选择文件"); // **优化文件名显示**
+    const [fileName, setFileName] = useState("请选择文件"); 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [contract, setContract] = useState(null);
@@ -34,7 +34,7 @@ export default function NFTMinting() {
     }, []);
 
     async function switchToMonadNetwork() {
-        const EXPECTED_CHAIN_ID = "0x279f"; // 10143 转换为 0x279F
+        const EXPECTED_CHAIN_ID = "0x279f"; // 10143
         try {
             const provider = new ethers.BrowserProvider(window.ethereum);
             const network = await provider.getNetwork();
@@ -65,7 +65,7 @@ export default function NFTMinting() {
                 console.error("Wallet connection error:", error);
             }
         } else {
-            alert("请安装 MetaMask!");
+            alert("请先安装钱包!");
         }
     }
 
@@ -78,17 +78,15 @@ export default function NFTMinting() {
             const signer = await provider.getSigner();
             const contractWithSigner = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
 
-            // 1️⃣ 上传图片到 IPFS
+            // 上传图片到 IPFS
             const imageUrl = await uploadFileToIPFS(file);
             if (!imageUrl) return alert("文件上传失败!");
 
-            // 2️⃣ 上传 NFT 元数据到 IPFS
+            // 上传 NFT 元数据到 IPFS
             const metadataUrl = await uploadMetadataToIPFS(name, description, imageUrl);
-            console.log("Metadata URI to be minted:", metadataUrl);
             if (!metadataUrl) return alert("元数据上传失败!");
 
-            // 3️⃣ **触发 NFT 铸造交易**
-            console.log("Minting NFT with metadata:", metadataUrl);
+            // 触发 NFT 铸造交易
             const tx = await contractWithSigner.mintNFT(metadataUrl);
             console.log("交易发送成功:", tx.hash);
 
@@ -96,7 +94,11 @@ export default function NFTMinting() {
             alert("NFT 铸造成功!");
         } catch (error) {
             console.error("交易失败:", error);
-            alert("交易失败! 请检查控制台获取详细信息.");
+            if (error.message && error.message.includes("You already own an NFT")) {
+                alert("你已拥有了NFT");
+            } else {
+                alert("交易失败，请检查控制台以获取更多信息");
+            }
         }
     }
 
@@ -106,7 +108,7 @@ export default function NFTMinting() {
 
             {account ? (
                 <>
-                    {/* ✅ **优化文件选择按钮** */}
+        
                     <label className="flex items-center cursor-pointer bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
                         📁 {fileName}
                         <input 
