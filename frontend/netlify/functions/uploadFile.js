@@ -1,4 +1,4 @@
-const axios = require('axios');
+const axios = require('axios').default;
 
 export async function handler(event) {
     if (event.httpMethod !== "POST") {
