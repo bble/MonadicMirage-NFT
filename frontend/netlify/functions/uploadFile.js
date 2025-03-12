@@ -13,7 +13,7 @@ export async function handler(event) {
     try {
         const formData = new FormData();
         console.log("event.body:",event.body);
-        formData.append("file", event.body.file);
+        formData.append("file", event.body);
 
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
             method: 'POST',
