@@ -16,12 +16,15 @@ export async function handler(event) {
             };
         }
 
-        // 解码 base64 为二进制 Buffer
+        // 将 Base64 转换为 Buffer
         const fileBuffer = Buffer.from(event.body, 'base64');
 
-        // 创建 FormData
+        // 使用 Blob 让 FormData 识别
+        const blob = new Blob([fileBuffer], { type: "application/octet-stream" });
+
+        // 创建 FormData 并添加文件
         const formData = new FormData();
-        formData.append("file", fileBuffer, { filename: "uploaded_file" });
+        formData.append("file", blob, "uploaded_file");
 
         // 发送文件到 Pinata
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
