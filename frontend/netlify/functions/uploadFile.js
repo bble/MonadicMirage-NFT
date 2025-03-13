@@ -39,7 +39,7 @@ export async function handler(event) {
             },
             body: fileBuffer, // 上传解码后的二进制数据
         });
-
+        console.log("response:",response);
         const result = await response.json();
 
         return {
