@@ -36,7 +36,9 @@ export async function handler(event) {
             },
             body: formData,
         });
+        console.log("response:",response);
         const result = await response.json();
+        console.log("result:",result);
 
         return {
             statusCode: 200,
