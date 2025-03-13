@@ -34,7 +34,7 @@ export async function handler(event) {
             },
             body: formData,
         });
-        console.log("result:",result);
+        console.log("response:",response);
         const result = await response.json();
 
         return {
