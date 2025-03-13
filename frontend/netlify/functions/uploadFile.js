@@ -1,6 +1,13 @@
-import fs from 'fs';
-import { IncomingForm } from 'formidable';
 import fetch from 'node-fetch';
+import { Buffer } from 'buffer'; 
+import FormData from 'form-data';
+
+const PINATA_API_KEY = process.env.PINATA_API_KEY;
+const PINATA_SECRET_API_KEY = process.env.PINATA_SECRET_API_KEY;
+
+if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
+    console.error("ERROR: Missing Pinata credentials in .env file!");
+}
 
 export async function handler(event) {
     if (event.httpMethod !== "POST") {
@@ -11,35 +18,26 @@ export async function handler(event) {
     }
 
     try {
-
-        const form = new IncomingForm({ multiples: false });
-
-        const data = await new Promise((resolve, reject) => {
-            form.parse(event, (err, fields, files) => {
-                if (err) reject(err);
-                else resolve({ fields, files });
-            });
-        });
-
-        const file = data.files.file; 
-        console.log("data:",data);
-        console.log("data.files:",data.files);
-        console.log("data.files.file:",data.files.file);
+        const body = JSON.parse(event.body); 
+        const { file } = body;  
         if (!file) {
-            return { statusCode: 400, body: JSON.stringify({ message: "No file uploaded" }) };
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ message: "No file uploaded" }),
+            };
         }
-
-        const fileStream = fs.createReadStream(file.filepath);
-
+        const fileBuffer = Buffer.from(file, 'base64');  
+        const formData = new FormData();
+        formData.append("file", fileBuffer, { filename: 'file' });
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
             method: 'POST',
             headers: {
-                "pinata_api_key": process.env.PINATA_API_KEY,
-                "pinata_secret_api_key": process.env.PINATA_SECRET_API_KEY,
+                "pinata_api_key": PINATA_API_KEY,
+                "pinata_secret_api_key": PINATA_SECRET_API_KEY,
+                "Content-Type": "multipart/form-data"
             },
-            body: fileStream,
+            body: formData,
         });
-
         const result = await response.json();
 
         return {
