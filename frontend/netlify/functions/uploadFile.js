@@ -22,7 +22,7 @@ export async function handler(event) {
 
         // 使用 form-data 处理 Buffer
         const formData = new FormData();
-        formData.append("file", fileBuffer, { filename: "uploaded_file.txt", contentType: "application/octet-stream" });
+        formData.append("file", fileBuffer, { contentType: "application/octet-stream" });
 
         // 发送到 Pinata
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
