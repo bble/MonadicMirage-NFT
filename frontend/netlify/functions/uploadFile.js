@@ -1,4 +1,5 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
+import FormData from "form-data";
 
 export async function handler(event) {
     if (event.httpMethod !== "POST") {
@@ -16,26 +17,24 @@ export async function handler(event) {
             };
         }
 
-        // 将 Base64 转换为 Buffer
-        const fileBuffer = Buffer.from(event.body, 'base64');
+        // **将 Base64 解码为 Buffer**
+        const fileBuffer = Buffer.from(event.body, "base64");
 
-        // 使用 Blob 让 FormData 识别
-        const blob = new Blob([fileBuffer], { type: "application/octet-stream" });
-
-        // 创建 FormData 并添加文件
+        // **使用 form-data 处理 Buffer**
         const formData = new FormData();
-        formData.append("file", blob, "uploaded_file");
+        formData.append("file", fileBuffer, { filename: "uploaded_file.txt", contentType: "application/octet-stream" });
 
-        // 发送文件到 Pinata
+        // **发送到 Pinata**
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
-            method: 'POST',
+            method: "POST",
             headers: {
                 "pinata_api_key": process.env.PINATA_API_KEY,
                 "pinata_secret_api_key": process.env.PINATA_SECRET_API_KEY,
+                ...formData.getHeaders(), // **必须加这个**
             },
             body: formData,
         });
-        console.log("response:",response);
+        console.log("result:",result);
         const result = await response.json();
 
         return {
