@@ -1,5 +1,6 @@
-import fetch from 'node-fetch'; 
-import FormData from 'form-data';
+import fs from 'fs';
+import { IncomingForm } from 'formidable';
+import fetch from 'node-fetch';
 
 export async function handler(event) {
     if (event.httpMethod !== "POST") {
@@ -10,28 +11,40 @@ export async function handler(event) {
     }
 
     try {
-        console.log("event:",event);
-        console.log("event.body:",event.body);
-        console.log("event.body.file:",event.body.file);
-        if (!event.body || !event.body.file) {
-            throw new Error('No file uploaded!');
+
+        const form = new IncomingForm({ multiples: false });
+
+        const data = await new Promise((resolve, reject) => {
+            form.parse(event, (err, fields, files) => {
+                if (err) reject(err);
+                else resolve({ fields, files });
+            });
+        });
+
+        const file = data.files.file; 
+        console.log("data:",data);
+        console.log("data.files:",data.files);
+        console.log("data.files.file:",data.files.file);
+        if (!file) {
+            return { statusCode: 400, body: JSON.stringify({ message: "No file uploaded" }) };
         }
-        const formData = new FormData();
-        formData.append("file", event.body.file);  // 假设文件数据存在于 event.body.file
+
+        const fileStream = fs.createReadStream(file.filepath);
+
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
             method: 'POST',
             headers: {
                 "pinata_api_key": process.env.PINATA_API_KEY,
                 "pinata_secret_api_key": process.env.PINATA_SECRET_API_KEY,
             },
-            body: formData,
+            body: fileStream,
         });
 
-        const data = await response.json();
+        const result = await response.json();
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ ipfsUrl: `ipfs://${data.IpfsHash}` }),
+            body: JSON.stringify({ ipfsUrl: `ipfs://${result.IpfsHash}` }),
         };
     } catch (error) {
         console.error("IPFS Upload Error:", error);
