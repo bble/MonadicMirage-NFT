@@ -18,15 +18,13 @@ export async function handler(event) {
     }
 
     try {
-        const body = JSON.parse(event.body); 
-        const { file } = body;  
-        if (!file) {
+        if (!event.body) {
             return {
                 statusCode: 400,
                 body: JSON.stringify({ message: "No file uploaded" }),
             };
         }
-        const fileBuffer = Buffer.from(file, 'base64');  
+        const fileBuffer = Buffer.from(event.body, 'base64');  
         const formData = new FormData();
         formData.append("file", fileBuffer, { filename: 'file' });
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
