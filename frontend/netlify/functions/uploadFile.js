@@ -17,6 +17,7 @@ export async function handler(event) {
             };
         }
 
+        console.log("event:",event);
         // 将 Base64 解码为 Buffer
         const fileBuffer = Buffer.from(event.body, "base64");
 
@@ -34,6 +35,7 @@ export async function handler(event) {
             },
             body: formData,
         });
+        console.log("response:",response);
         const result = await response.json();
 
         return {
