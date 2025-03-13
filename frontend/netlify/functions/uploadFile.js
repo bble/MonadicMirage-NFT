@@ -10,7 +10,9 @@ export async function handler(event) {
     }
 
     try {
-        
+        console.log("event:",event);
+        console.log("event.body:",event.body);
+        console.log("event.body.file:",event.body.file);
         if (!event.body || !event.body.file) {
             throw new Error('No file uploaded!');
         }
