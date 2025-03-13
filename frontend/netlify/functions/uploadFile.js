@@ -13,28 +13,27 @@ export async function handler(event) {
         if (!event.isBase64Encoded) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ message: "Invalid file encoding" }),
+                body: JSON.stringify({ message: " file is not Base64 Encoded." }),
             };
         }
 
-        // **将 Base64 解码为 Buffer**
+        // 将 Base64 解码为 Buffer
         const fileBuffer = Buffer.from(event.body, "base64");
 
-        // **使用 form-data 处理 Buffer**
+        // 使用 form-data 处理 Buffer
         const formData = new FormData();
         formData.append("file", fileBuffer, { filename: "uploaded_file.txt", contentType: "application/octet-stream" });
 
-        // **发送到 Pinata**
+        // 发送到 Pinata
         const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
             method: "POST",
             headers: {
                 "pinata_api_key": process.env.PINATA_API_KEY,
                 "pinata_secret_api_key": process.env.PINATA_SECRET_API_KEY,
-                ...formData.getHeaders(), // **必须加这个**
+                ...formData.getHeaders(), 
             },
             body: formData,
         });
-        console.log("response:",response);
         const result = await response.json();
 
         return {
